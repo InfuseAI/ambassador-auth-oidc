@@ -159,23 +159,6 @@ func AuthReqHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Here we retrive groups info.
-	// the userinfo sent from keycloak can be figured configured in Client/Mapper/...
-
-	userInfo := struct {
-		Groups []string `json:"groups"`
-	}{}
-	if err := json.Unmarshal(uifClaim, &userInfo); err != nil {
-		log.Println("Error unmarshaling claims: %v", err)
-		returnStatus(w, http.StatusInternalServerError, "error unmarshaling user claims")
-	}
-	userGroups := strings.Join(userInfo.Groups, ", ")
-
-	log.Println(getUserIP(r), r.URL.String(), "Authorized & accepted.")
-
-	log.Printf("Adding header: %s = %s", "groups", userGroups)
-	w.Header().Set("groups", userGroups)
-
 	// We add Access Token in the Authorization here for the istio to do the authorization with
 	// the "request.auth.claims[groups]: admin" in the ServiceRoleBinding
 	// since a user can have multiple groups, while header value can only be the string
@@ -187,7 +170,6 @@ func AuthReqHandler(w http.ResponseWriter, r *http.Request) {
 	bearer := "Bearer " + token.Claims.(jwt.MapClaims)["accesstoken"].(string)
 	w.Header().Set("Authorization", bearer)
 
-	log.Println("request w: ", w)
 	returnStatus(w, http.StatusOK, "OK")
 }
 
