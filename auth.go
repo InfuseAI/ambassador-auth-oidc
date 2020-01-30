@@ -149,16 +149,6 @@ func AuthReqHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// log.Println("token: ", token)
-
-	uifClaim, err := base64decode(token.Claims.(jwt.MapClaims)["uif"].(string))
-	if err != nil {
-		log.Println(getUserIP(r), r.URL.String(), "Not able to decode base64 content:", err.Error())
-		http.SetCookie(w, deletionCookie)
-		beginOIDCLogin(w, r, r.URL.Path)
-		return
-	}
-
 	// We add Access Token in the Authorization here for the istio to do the authorization with
 	// the "request.auth.claims[groups]: admin" in the ServiceRoleBinding
 	// since a user can have multiple groups, while header value can only be the string
